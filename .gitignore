@@ -4,7 +4,11 @@ venv/
 # Файлы с секретами
 .env
 .vscode
+
 .test
+=======
+.idea
+
 
 # Кэш Python
 __pycache__/

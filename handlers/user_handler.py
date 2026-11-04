@@ -11,7 +11,7 @@ router = Router()
 
 class SMS(StatesGroup):
     name = State()
-    messsage = State()
+    message = State()
     save_massage = State()
 
 @router.message(CommandStart())
@@ -32,15 +32,17 @@ async def sms_name(message: Message, state: FSMContext):
 @router.message(SMS.name)
 async def sms_name(message: Message, state: FSMContext):
     await state.update_data(name=message.text) # типа сохранение имени после получения
-    await state.set_state(SMS.messsage) # после получения данных меняем состояние
+    await state.set_state(SMS.message) # после получения данных меняем состояние
     await message.answer("Отлично! А теперь наберите ваше послание", reply_markup=types.ReplyKeyboardRemove())
 
-@router.message(SMS.messsage)
+@router.message(SMS.message)
 async def sms_name(message: Message, state: FSMContext):
     await state.update_data(new_message=message.text)
     await state.set_state(SMS.save_massage)
+
     data = await state.get_data();
     data["user_id"] = message.from_user.id
+
     await message.answer("Отлично! Ваше сообщение сохранено! Ждите публикации ")
     
     if data["name"] == "Не хочу указывать имя":

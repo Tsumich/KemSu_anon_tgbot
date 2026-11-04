@@ -6,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
 from db import drop_table, init_db
+from aiogram.types import BotCommand
 from handlers.user_handler import router
 from handlers.admin_handler import admin_router
 
@@ -34,16 +35,26 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+async def set_main_menu(bot: Bot):
+    commands = [
+        BotCommand(command='start', description='Начать'),
+        BotCommand(command='sms', description='Отправить смс')
+    ]
+    await bot.set_my_commands(commands)
 
 # --------------------  MAIN -------------------
 
 async def main():
     #await drop_table()
     await init_db()
+    dp.startup.register(set_main_menu)  
     dp.include_routers(router, admin_router)
+
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
-    asyncio.run(main())
-
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print('Выход...')
 
