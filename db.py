@@ -26,21 +26,16 @@ async def save_message(author, message, user_id):
         await db.commit()
 
 
-async def get_all_message():
+async def get_all_message(offset):
     async with aiosqlite.connect(DB_NAME) as db:
         cursor = await db.execute("""
-                select id, author, message from messages where is_posted = 0 and is_deny = 0
-            """)
+                select id, author, message from messages 
+                where is_posted = 0 and is_deny = 0
+                LIMIT 2 OFFSET ?
+            """, (offset, ))
         result = await cursor.fetchall()
     return result
 
-async def get_all_message():
-    async with aiosqlite.connect(DB_NAME) as db:
-        cursor = await db.execute("""
-                select id, author, message from messages
-            """)
-        result = await cursor.fetchall()
-    return result
 
 async def drop_table():
     async with aiosqlite.connect(DB_NAME) as db:

@@ -5,7 +5,7 @@ from aiogram.types import Message
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 
-from db import get_all_message, save_message
+from db import save_message
 
 router = Router()
 

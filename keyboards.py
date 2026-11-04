@@ -1,4 +1,4 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 messages_page = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='<-', callback_data='previous_page'), 
