@@ -1,11 +1,13 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
-from aiogram.filters import Command
 from aiogram import Router, F
-from aiogram.fsm.state import StatesGroup, State
+from aiogram.exceptions import TelegramBadRequest
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.types import Message, CallbackQuery
 
 from db import get_all_message
 from keyboards import messages_page
+
 
 class Check_SMS(StatesGroup):
     show_sms = State()
@@ -38,40 +40,61 @@ async def sms_name(message: Message, state: FSMContext):
 
 @admin_router.callback_query(F.data == 'next_page')
 async def next_page(callback: CallbackQuery, state: FSMContext):
-    await callback.answer('') # чтобы при нажатии на инлайн кнопку она не подсвечивалась
-    new_offset = await state.get_data()
-    new_offset = new_offset["offset"] + 2
-    await state.update_data(offset=new_offset)
+    data = await state.get_data()
+    current_offset = data.get("offset", 0)
+    new_offset = current_offset + 2
+
     messages = await get_all_message(new_offset)
     if not messages:
-        await callback.message.answer("Список пуст")
+        await callback.answer("Это последняя страница", show_alert=True)
         return
-    
+
+    await callback.answer('')
+    await state.update_data(offset=new_offset)
+
     content = 'Вот все неопубликованные сообщения:\n\n'
     for id, author, text in messages:
         content += f'{id} - {author} : <code>{text}</code>\n'
     content += "\n Укажите id сообщения с которыми хотите взаимодействовать"
 
-    await callback.message.edit_text(content, parse_mode="HTML", reply_markup=messages_page)
+    try:
+        await callback.message.edit_text(content, parse_mode="HTML", reply_markup=messages_page)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            pass
+        else:
+            raise e
 
 
 @admin_router.callback_query(F.data == 'previous_page')
-async def next_page(callback: CallbackQuery, state: FSMContext):
-    await callback.answer('') # чтобы при нажатии на инлайн кнопку она не подсвечивалась
-    await callback.message.edit_text("Назад", reply_markup= messages_page) 
-    new_offset = await state.get_data()
-    new_offset = new_offset["offset"] - 2
-    await state.update_data(offset=new_offset)
+async def previous_page(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    current_offset = data.get("offset", 0)
+
+    if current_offset <= 0:
+        await callback.answer("Вы на самой первой странице", show_alert=True)
+        return
+
+    new_offset = current_offset - 2
     messages = await get_all_message(new_offset)
     if not messages:
-        await callback.message.answer("Список пуст")
+        await callback.answer("Предыдущих сообщений не найдено", show_alert=True)
         return
-    
+
+    await callback.answer('')
+    await state.update_data(offset=new_offset)
+
     content = 'Вот все неопубликованные сообщения:\n\n'
     for id, author, text in messages:
         content += f'{id} - {author} : <code>{text}</code>\n'
     content += "\n Укажите id сообщения с которыми хотите взаимодействовать"
 
-    await callback.message.edit_text(content, parse_mode="HTML", reply_markup=messages_page)
+    try:
+        await callback.message.edit_text(content, parse_mode="HTML", reply_markup=messages_page)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            pass
+        else:
+            raise e
 
 

@@ -12,7 +12,6 @@ router = Router()
 class SMS(StatesGroup):
     name = State()
     message = State()
-    save_massage = State()
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
@@ -38,15 +37,18 @@ async def sms_name(message: Message, state: FSMContext):
 @router.message(SMS.message)
 async def sms_name(message: Message, state: FSMContext):
     await state.update_data(new_message=message.text)
-    await state.set_state(SMS.save_massage)
 
-    data = await state.get_data();
-    data["user_id"] = message.from_user.id
+    data = await state.get_data()
 
+    author_name = data.get("name", "Анон")
+    new_message_text = data.get("new_message")
+    user_id = message.from_user.id
+
+    if author_name == "Не хочу указывать имя":
+        author_name = "Анон"
+
+    await save_message(author_name, new_message_text, user_id)
     await message.answer("Отлично! Ваше сообщение сохранено! Ждите публикации ")
-    
-    if data["name"] == "Не хочу указывать имя":
-        data["name"] = "Анон"
 
-    await save_message(data["name"], data["new_message"], data["user_id"])
+    await state.clear()
 

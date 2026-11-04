@@ -1,14 +1,15 @@
-import threading
 import asyncio
-import aiosqlite
-from flask import Flask
 import os
-from dotenv import load_dotenv
+import threading
+
 from aiogram import Bot, Dispatcher
-from db import drop_table, init_db
 from aiogram.types import BotCommand
-from handlers.user_handler import router
+from dotenv import load_dotenv
+from flask import Flask
+
+from db import init_db
 from handlers.admin_handler import admin_router
+from handlers.user_handler import router
 
 load_dotenv()
 
