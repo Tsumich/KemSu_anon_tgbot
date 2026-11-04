@@ -49,8 +49,4 @@ async def sms_name(message: Message, state: FSMContext):
         data["name"] = "Анон"
 
     await save_message(data["name"], data["new_message"], data["user_id"])
-    print(get_all_message())
-    
-    print(data["name"])
-    print(data["new_message"])
-    print(data["user_id"])
+
