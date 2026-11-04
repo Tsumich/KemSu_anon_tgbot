@@ -39,7 +39,6 @@ async def sms_name(message: Message, state: FSMContext):
 @admin_router.callback_query(F.data == 'next_page')
 async def next_page(callback: CallbackQuery, state: FSMContext):
     await callback.answer('') # чтобы при нажатии на инлайн кнопку она не подсвечивалась
-    await callback.message.edit_text("Вперед ", reply_markup= messages_page) # edit!! чтобы сообщение не отправлялось новое
     new_offset = await state.get_data()
     new_offset = new_offset["offset"] + 2
     await state.update_data(offset=new_offset)
