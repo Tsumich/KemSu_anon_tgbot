@@ -1,9 +1,10 @@
 import threading
-import time
+import asyncio
 from flask import Flask
-import telebot
 import os
 from dotenv import load_dotenv
+from aiogram import Bot, Dispatcher
+from handlers.user_handler import router
 
 load_dotenv()
 
@@ -23,33 +24,16 @@ flask_thread = threading.Thread(target=run_flask, daemon=True)
 flask_thread.start()
 print("Веб-сервер запущен на порту", os.environ.get('PORT', 8080))
 
-bot = telebot.TeleBot(BOT_TOKEN)
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
 
 
 
-@bot.message_handler(commands=['sms', 'start'])
-def send_welcome(message):
-    bot.reply_to(message, """\
-        Привет! Хочешь представится как нибудь? (необязательно) 
-    """)
+async def main():
+    dp.include_router(router)
+    await dp.start_polling(bot)
+
+if __name__ == '__main__':
+    asyncio.run(main())
 
 
-    
-@bot.message_handler()
-def dialogue(message):
-    name = "anonymous"
-    #if dialogueIsStarted is True:
-    #    bot.reply_to(message, """\
-    #        "Напиши свое послание!!!" + name
-    #    """)
-
-
-print("Бот запущен")
-
-
-while True:
-    try:
-        bot.infinity_polling(timeout=10, long_polling_timeout=5)
-    except Exception as e:
-        print(f"Ошибка: {e}")
-        time.sleep(5)
