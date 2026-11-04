@@ -1,14 +1,17 @@
 import threading
 import asyncio
+import aiosqlite
 from flask import Flask
 import os
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
+from db import drop_table, init_db
 from handlers.user_handler import router
+from handlers.admin_handler import admin_router
 
 load_dotenv()
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+# --------------------  ВЕБ - СЕРВЕР -------------------
 
 app = Flask(__name__)
 
@@ -24,13 +27,20 @@ flask_thread = threading.Thread(target=run_flask, daemon=True)
 flask_thread.start()
 print("Веб-сервер запущен на порту", os.environ.get('PORT', 8080))
 
+# -------------------- ТЕЛЕГРАМ БОТ -------------------
+
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 
+# --------------------  MAIN -------------------
 
 async def main():
-    dp.include_router(router)
+    #await drop_table()
+    await init_db()
+    dp.include_routers(router, admin_router)
     await dp.start_polling(bot)
 
 if __name__ == '__main__':

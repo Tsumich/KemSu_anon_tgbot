@@ -4,7 +4,8 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
+from db import get_all_message, save_message
 
 router = Router()
 
@@ -39,11 +40,15 @@ async def sms_name(message: Message, state: FSMContext):
     await state.update_data(new_message=message.text)
     await state.set_state(SMS.save_massage)
     data = await state.get_data();
+    data["user_id"] = message.from_user.id
     await message.answer("Отлично! Ваше сообщение сохранено! Ждите публикации ")
     
     if data["name"] == "Не хочу указывать имя":
         data["name"] = "Анон"
-        
+
+    await save_message(data["name"], data["new_message"], data["user_id"])
+    print(get_all_message())
+    
     print(data["name"])
     print(data["new_message"])
-
+    print(data["user_id"])
