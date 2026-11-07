@@ -54,4 +54,14 @@ async def get_message(id):
         result = await cursor.fetchone()
     return result
 
+async def update_subtext(id, text):
+    async with aiosqlite.connect(DB_NAME) as db:
+        cursor = await db.execute("""
+                update messages 
+                set admin_subtext = ? , is_posted = 1
+                where id = ?
+                
+            """, (id, text))
+        result = await cursor.fetchone()
+    return result
       

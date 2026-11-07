@@ -8,7 +8,7 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 from utils.messages_utils import get_content
 
-from db import get_all_message, get_message
+from db import get_all_message, get_message, update_subtext
 from keyboards import messages_page, messages_action, message_preparation
 
 load_dotenv()
@@ -17,9 +17,8 @@ CHANEL_ID = os.getenv("CHANEL_ID")
 OFFSET = 5
 
 class Check_SMS(StatesGroup):
-    show_sms = State()
+    start = State()
     open_sms = State()
-    publish_sms = State()
     chng_subtext = State()
     deny_sms = State()
 
@@ -31,9 +30,8 @@ async def cmd_start(message: Message):
 
 #----------------- ВЫВОД СООБЩЕНИЙ -------------------
 
-@admin_router.message(Command('show'))
+@admin_router.message(Command('sh'))
 async def sms_name(message: Message, state: FSMContext):
-    await state.set_state(Check_SMS.show_sms)
     await state.update_data(offset=0)
     messages = await get_all_message(OFFSET, 0)
     if not messages:
@@ -124,11 +122,34 @@ async def previous_page(callback: CallbackQuery, state: FSMContext):
 @admin_router.message(Check_SMS.chng_subtext)
 async def sms_name(message: Message, state: FSMContext):
     data = await state.get_data()
+    await state.update_data(admin_text=message.text)
     author = data.get("author")
     text = data.get("text")
     content = message.text + '\n\n'
     content += f'{author} : <code>{text}</code>\n'
     await message.answer(content, parse_mode="HTML", reply_markup=message_preparation)
+
+#----------------- АДМИН ВЫБИРАЕТ ПУБЛИКОВАТЬ -------------------
+
+@admin_router.callback_query(F.data == 'publish_message')
+async def previous_page(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(Check_SMS.start)
+    data = await state.get_data()
+
+    admin_text = data.get("admin_text", "")
+    author = data.get("author")
+    text = data.get("text")
+    content = f"{admin_text}\n\n" if admin_text else ""
+    content += f'{author} : <code>{text}</code>\n'
+
+    await update_subtext(data.get("id"), data.get("admin_text"))
+    print(CHANEL_ID)
+    await callback.bot.send_message(
+        chat_id=CHANEL_ID, 
+        text=content, 
+        parse_mode="HTML"
+    )
+    await callback.message.edit_text("Запостил в подслушку!")
 
 #----------------- АДМИН ВЫБИРАЕТ ОТКЛОНИТЬ -------------------
 
