@@ -117,6 +117,7 @@ async def sms_name(message: Message, state: FSMContext):
 @admin_router.callback_query(F.data == 'add_admin_text')
 async def previous_page(callback: CallbackQuery, state: FSMContext):
     await state.set_state(Check_SMS.chng_subtext)
+    await callback.answer()
     await callback.message.answer("Какую подпись хотите добавить?", parse_mode="HTML")
 
 @admin_router.message(Check_SMS.chng_subtext)
@@ -138,11 +139,13 @@ async def previous_page(callback: CallbackQuery, state: FSMContext):
 
     admin_text = data.get("admin_text", "")
     author = data.get("author")
+    id = data.get("msg_id")
     text = data.get("text")
     content = f"{admin_text}\n\n" if admin_text else ""
     content += f'{author} : <code>{text}</code>\n'
 
-    await update_subtext(data.get("id"), data.get("admin_text"))
+    await update_subtext(id, admin_text)
+
     print(CHANEL_ID)
     await callback.bot.send_message(
         chat_id=CHANEL_ID, 

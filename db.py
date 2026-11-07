@@ -31,7 +31,7 @@ async def get_all_message(limit, offset):
     async with aiosqlite.connect(DB_NAME) as db:
         cursor = await db.execute("""
                 select id, author, message from messages 
-                where is_posted = false and is_deny = false
+                where is_posted = 0 and is_deny = 0
                 LIMIT ? OFFSET ?
             """, (limit, offset))
         result = await cursor.fetchall()
@@ -56,14 +56,12 @@ async def get_message(id):
 
 async def update_subtext(id, text):
     async with aiosqlite.connect(DB_NAME) as db:
-        cursor = await db.execute("""
+        await db.execute("""
                 update messages 
-                set admin_subtext = ? , is_posted = true
+                set admin_subtext = ? , is_posted = 1
                 where id = ?
                 
             """, (text, id))
-        result = await cursor.fetchone()
-    await db.commit()
-    return result
+        await db.commit()
 
       
