@@ -30,7 +30,7 @@ async def cmd_start(message: Message):
 
 #----------------- ВЫВОД СООБЩЕНИЙ -------------------
 
-@admin_router.message(Command('sh'))
+@admin_router.message(Command('show'))
 async def sms_name(message: Message, state: FSMContext):
     await state.update_data(offset=0)
     messages = await get_all_message(OFFSET, 0)
