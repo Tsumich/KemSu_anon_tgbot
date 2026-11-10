@@ -1,0 +1,42 @@
+services:
+  bot:
+    build: .
+    container_name: kemsu_anon_bot
+    restart: always
+    env_file:
+      - .env
+    
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_web
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - bot
+      - phpliteadmin
+
+  phpliteadmin:
+    image: ojooss/phpliteadmin:latest
+    container_name: phpliteadmin_db_gui
+    restart: always
+    ports:
+      - "8080:80"    
+    env_file:
+      - .env
+    environment:
+      PHPLITEADMIN_PASSWORD: ${ADMINER_PASSWORD}
+      PHPLITEADMIN_THEME: 'Sheep'
+      PHPLITEADMIN_LANGUAGE: 'en'
+      PHPLITEADMIN_DIRECTORY: '/app'
+      PHPLITEADMIN_ROWSNUM: '50'
+      PHPLITEADMIN_CHARSNUM: '500'
+      PHPLITEADMIN_MAXSAVEDQUERIES: '20'
+      PHPLITEADMIN_COOKIE_NAME: 'pla'
+    volumes:
+      - sqlite_data:/app
+    depends_on:
+      - bot
+volumes:
+  sqlite_data:

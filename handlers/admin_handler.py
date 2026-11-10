@@ -13,6 +13,9 @@ from keyboards import messages_page, messages_action, message_preparation
 
 load_dotenv()
 CHANEL_ID = os.getenv("CHANEL_ID")
+ADMIN_IDS = os.getenv("ADMIN_IDS")
+
+id = ADMIN_IDS.split(',')
 
 OFFSET = 5
 
@@ -24,14 +27,16 @@ class Check_SMS(StatesGroup):
 
 admin_router = Router()
 
-@admin_router.message(Command('help'))
-async def cmd_start(message: Message):
-    await message.answer('234')
-
 #----------------- ВЫВОД СООБЩЕНИЙ -------------------
 
 @admin_router.message(Command('show'))
 async def sms_name(message: Message, state: FSMContext):
+    print(ADMIN_IDS)
+    if(str(message.from_user.id) not in id):
+        print(id)
+        print("вы не администратор")
+        return
+
     await state.update_data(offset=0)
     messages = await get_all_message(OFFSET, 0)
     if not messages:
@@ -105,6 +110,9 @@ async def previous_page(callback: CallbackQuery, state: FSMContext):
 @admin_router.message(Check_SMS.open_sms)
 async def sms_name(message: Message, state: FSMContext):
     content = await get_message(message.text)
+    if(content is None):
+        await message.answer("не могу найти подходящее сообщение(")
+        return
     await state.update_data(msg_id=message.text)
     id, author, text = content 
     await state.update_data(author=author)
@@ -124,6 +132,7 @@ async def previous_page(callback: CallbackQuery, state: FSMContext):
 async def sms_name(message: Message, state: FSMContext):
     data = await state.get_data()
     await state.update_data(admin_text=message.text)
+    await state.update_data(admin_id=message.from_user.id)
     author = data.get("author")
     text = data.get("text")
     content = message.text + '\n\n'
@@ -144,7 +153,7 @@ async def previous_page(callback: CallbackQuery, state: FSMContext):
     content = f"{admin_text}\n\n" if admin_text else ""
     content += f'{author} : <code>{text}</code>\n'
 
-    await update_subtext(id, admin_text)
+    await update_subtext(id, admin_text, data.get("admin_id"))
 
     print(CHANEL_ID)
     await callback.bot.send_message(

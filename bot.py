@@ -7,7 +7,7 @@ from aiogram.types import BotCommand
 from dotenv import load_dotenv
 from flask import Flask
 
-from db import init_db
+from db import drop_table, init_db
 from handlers.admin_handler import admin_router
 from handlers.user_handler import router
 
@@ -27,7 +27,7 @@ def run_flask():
 
 flask_thread = threading.Thread(target=run_flask, daemon=True)
 flask_thread.start()
-print("Веб-сервер запущен на порту", os.environ.get('PORT', 8080))
+print("Веб-сервер запущен на порту", os.environ.get('PORT', 9000))
 
 # -------------------- ТЕЛЕГРАМ БОТ -------------------
 

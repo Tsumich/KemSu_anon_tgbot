@@ -5,7 +5,7 @@ from aiogram.types import Message
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 
-from db import save_message
+from db import get_last_message, save_message
 
 router = Router()
 
@@ -15,7 +15,11 @@ class SMS(StatesGroup):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer('KYYY')
+    await message.answer('всем привет')
+
+@router.message(Command('help'))
+async def cmd_start(message: Message):
+    await message.answer('тут тебе никто не поможет друк')
 
 @router.message(Command('sms'))
 async def sms_name(message: Message, state: FSMContext):
@@ -25,6 +29,9 @@ async def sms_name(message: Message, state: FSMContext):
         keyboard=kb,
         resize_keyboard=True,
     )
+    if await get_last_message(message.from_user.id) == False:
+        print("с последнего смс менее 15 минут")
+        return
     await message.answer('Как вы хотите представиться?', reply_markup=keyboard)
 
 
