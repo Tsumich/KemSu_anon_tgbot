@@ -5,7 +5,6 @@ messages_page = InlineKeyboardMarkup(inline_keyboard=[
     InlineKeyboardButton(text='->', callback_data='next_page')]
 ])
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 messages_action = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='опубликовать', callback_data='publish_message'), 

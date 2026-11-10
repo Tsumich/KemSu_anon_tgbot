@@ -36,7 +36,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
-async def set_main_menu(bot: Bot):
+async def set_main_menu():
     commands = [
         BotCommand(command='start', description='Начать'),
         BotCommand(command='sms', description='Отправить смс'),
