@@ -95,9 +95,9 @@ async def get_last_message(user_id):
             LIMIT 1;
             """, (user_id, ))
         content = await cursor.fetchone() 
-    time_created, id = content
-    if time_created is None:
+    if content is None:
         return True
+    time_created, id = content
     today = datetime.datetime.now()
     date_obj = datetime.datetime.strptime(time_created, '%Y-%m-%d %H:%M:%S')
     diff = (today - date_obj).total_seconds() // 60
