@@ -23,7 +23,6 @@ async def cmd_start(message: Message):
 
 @router.message(Command('sms'))
 async def sms_name(message: Message, state: FSMContext):
-    await state.set_state(SMS.name)
     kb = [[types.KeyboardButton(text="Не хочу указывать имя", )]]
     keyboard = types.ReplyKeyboardMarkup(
         keyboard=kb,
@@ -33,6 +32,7 @@ async def sms_name(message: Message, state: FSMContext):
         print("с последнего смс менее 15 минут")
         await message.answer('Прости, друк, но смс не чаще чем раз в 15 минут!')
         return
+    await state.set_state(SMS.name)
     await message.answer('Как вы хотите представиться?', reply_markup=keyboard)
 
 
