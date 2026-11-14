@@ -40,7 +40,6 @@ async def set_main_menu():
     commands = [
         BotCommand(command='start', description='Начать'),
         BotCommand(command='sms', description='Отправить смс'),
-        BotCommand(command='show', description='Показать все полученные сообщения'),
         BotCommand(command='help', description='Информация о боте')
     ]
     await bot.set_my_commands(commands)

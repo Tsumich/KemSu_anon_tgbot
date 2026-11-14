@@ -15,11 +15,11 @@ class SMS(StatesGroup):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer('всем привет')
+    await message.answer('Ку! Хочешь что то сказать? тогда пиши команду /sms')
 
 @router.message(Command('help'))
 async def cmd_start(message: Message):
-    await message.answer('тут тебе никто не поможет друк')
+    await message.answer('тут тебе никто не поможет друк, но ты можешь прислать смс командой /sms')
 
 @router.message(Command('sms'))
 async def sms_name(message: Message, state: FSMContext):
@@ -31,6 +31,7 @@ async def sms_name(message: Message, state: FSMContext):
     )
     if await get_last_message(message.from_user.id) == False:
         print("с последнего смс менее 15 минут")
+        await message.answer('Прости, друк, но смс не чаще чем раз в 15 минут!')
         return
     await message.answer('Как вы хотите представиться?', reply_markup=keyboard)
 

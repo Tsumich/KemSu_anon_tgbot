@@ -73,6 +73,16 @@ async def update_subtext(id, text, admin_id):
             """, (text, admin_id, id))
         await db.commit()
 
+async def update_message_to_deny(id):
+    async with aiosqlite.connect(DB_NAME) as db:
+        await db.execute("""
+                update messages 
+                set is_deny = 1, 
+                    time_updated =  TIME('now','localtime')
+                where id = ?
+                
+            """, (id, ))
+        await db.commit()
 
 #-------- ФУНКЦИЯ ДОСТАЕТ ПОСЛЕДНЕЕ СМС И ПРОВЕРЯЕТ ПРОШЛО ЛИ БОЛЬШЕ 15 МИНУТ -------------
 async def get_last_message(user_id):
