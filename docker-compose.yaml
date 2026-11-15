@@ -5,6 +5,8 @@ services:
     restart: always
     env_file:
       - .env
+    volumes:
+      - sqlite_data:/data
     
 
   nginx:
@@ -27,16 +29,11 @@ services:
       - .env
     environment:
       PHPLITEADMIN_PASSWORD: ${ADMINER_PASSWORD}
-      PHPLITEADMIN_THEME: 'Sheep'
-      PHPLITEADMIN_LANGUAGE: 'en'
-      PHPLITEADMIN_DIRECTORY: '/app'
-      PHPLITEADMIN_ROWSNUM: '50'
-      PHPLITEADMIN_CHARSNUM: '500'
-      PHPLITEADMIN_MAXSAVEDQUERIES: '20'
-      PHPLITEADMIN_COOKIE_NAME: 'pla'
+      PHPLITEADMIN_DIRECTORY: '/data'
     volumes:
-      - sqlite_data:/app
+      - sqlite_data:/data
     depends_on:
       - bot
 volumes:
   sqlite_data:
+    driver: local

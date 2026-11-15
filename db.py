@@ -3,7 +3,7 @@ import datetime
 import aiosqlite
 
 
-DB_NAME = "anonkemsu.db"
+DB_NAME = "/data/anonkemsu.db"
 
 async def init_db():
     async with aiosqlite.connect(DB_NAME) as db:
